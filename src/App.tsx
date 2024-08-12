@@ -1,53 +1,41 @@
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams,
+} from "react-router-dom";
 import { Auth } from "./components/Auth";
-import { useState, useRef } from "react";
-import "./sass/app.scss";
 import { Chat } from "./components/Chat";
-import { signOut } from "firebase/auth";
-import { auth } from "./firebase-config";
-
+import { useState } from "react";
+import "./sass/app.scss";
 import Cookies from "universal-cookie";
+import Home from "./components/Home";
+
 const cookies = new Cookies();
 
 const App = () => {
-  const [isAuth, setIsAuth] = useState<boolean>(cookies.get("authToken"));
-  const [room, setRoom] = useState<string>("");
-
-  const roomInputRef = useRef<HTMLInputElement>(null);
-
-  const signUserOut = async () => {
-    await signOut(auth);
-    cookies.remove("authToken");
-    setIsAuth(false);
-  };
-
-  if (!isAuth) {
-    return (
-      <div className="App">
-        <Auth setIsAuth={setIsAuth} />
-      </div>
-    );
-  }
+  const [isAuth, setIsAuth] = useState<boolean>(!!cookies.get("authToken"));
 
   return (
-    <div>
-      {room ? (
-        <div>
-          <Chat room={room} />
-        </div>
-      ) : (
-        <div className="room">
-          <label>Enter Room Name</label>
-          <input ref={roomInputRef} />
-          <button onClick={() => setRoom(roomInputRef.current?.value ?? " ")}>
-            Enter Chat
-          </button>
-          <div className="sign-out">
-            <button onClick={signUserOut}>Sign Out</button>
-          </div>
-        </div>
-      )}
-    </div>
+    <Router>
+      <Routes>
+        {isAuth ? (
+          <>
+            <Route path="/" element={<Home />} />
+            <Route path="/chat/:room" element={<ChatWrapper />} />
+          </>
+        ) : (
+          <Route path="/" element={<Auth setIsAuth={setIsAuth} />} />
+        )}
+      </Routes>
+    </Router>
   );
+};
+
+const ChatWrapper = () => {
+  const { room } = useParams<{ room: string }>();
+
+  return room ? <Chat room={room} /> : <div>No Room Selected</div>;
 };
 
 export default App;

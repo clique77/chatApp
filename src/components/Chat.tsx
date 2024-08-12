@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   addDoc,
   collection,
@@ -11,10 +11,8 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db, auth } from "../firebase-config";
-import { signOut } from "firebase/auth";
 import "../sass/chat.scss";
-import Cookies from "universal-cookie";
-const cookies = new Cookies();
+import App from "../App";
 
 interface ChatProps {
   room: string;
@@ -31,8 +29,8 @@ interface Message {
 export const Chat: React.FC<ChatProps> = ({ room }) => {
   const [newMessage, setNewMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
-
   const messagesRef = collection(db, "messages");
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const queryMessages = query(
@@ -56,6 +54,10 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
     return () => unsubscribe();
   }, [room]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -72,11 +74,6 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
 
     await addDoc(messagesRef, message);
     setNewMessage("");
-  };
-
-  const signUserOut = async () => {
-    await signOut(auth);
-    cookies.remove("authToken");
   };
 
   return (
@@ -96,6 +93,7 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
             </small>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       <form className="new-message-form" onSubmit={handleSubmit}>
         <input
@@ -109,8 +107,8 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
         <button type="submit" className="send-button">
           Send
         </button>
-        <button className="sign-out" onClick={signUserOut}>
-          Sign Out
+        <button className="sign-out" onClick={() => <App />}>
+          Sign out
         </button>
       </form>
     </div>

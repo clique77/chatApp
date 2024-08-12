@@ -1,12 +1,12 @@
 import { auth, provider } from "../firebase-config";
 import { signInWithPopup, UserCredential } from "firebase/auth";
 import "../sass/auth.scss";
-
 import Cookies from "universal-cookie";
+
 const cookies = new Cookies();
 
 interface AuthProps {
-  setIsAuth: (isAuth: boolean) => void;
+  setIsAuth?: (isAuth: boolean) => void;
 }
 
 export const Auth: React.FC<AuthProps> = ({ setIsAuth }) => {
@@ -19,7 +19,9 @@ export const Auth: React.FC<AuthProps> = ({ setIsAuth }) => {
         sameSite: "none",
         secure: true,
       });
-      setIsAuth(true);
+      if (setIsAuth) {
+        setIsAuth(true);
+      }
     } catch (error) {
       console.error(error);
     }
