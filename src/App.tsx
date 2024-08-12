@@ -1,15 +1,16 @@
 import { Auth } from "./components/Auth";
 import { useState, useRef } from "react";
 import "./sass/auth.scss";
+import { Chat } from "./components/Chat";
 
 import Cookies from "universal-cookie";
 const cookies = new Cookies();
 
 const App = () => {
   const [isAuth, setIsAuth] = useState<boolean>(cookies.get("authToken"));
-  const [room, setRoom] = useState<string | null>(null);
+  const [room, setRoom] = useState<string>("");
 
-  const roomInputRef = useRef<HTMLInputElement | null>(null);
+  const roomInputRef = useRef<HTMLInputElement>(null);
 
   if (!isAuth) {
     return (
@@ -22,7 +23,9 @@ const App = () => {
   return (
     <div>
       {room ? (
-        <div>Chat</div>
+        <div>
+          <Chat room={room} />
+        </div>
       ) : (
         <div className="room">
           <label>Enter Room Name</label>
