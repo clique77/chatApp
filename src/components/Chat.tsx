@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../firebase-config";
 import "../sass/chat.scss";
-import App from "../App";
+import { useNavigate } from "react-router-dom";
 
 interface ChatProps {
   room: string;
@@ -31,6 +31,7 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesRef = collection(db, "messages");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const queryMessages = query(
@@ -76,6 +77,10 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
     setNewMessage("");
   };
 
+  const handleSingOut = () => {
+    navigate("/");
+  };
+
   return (
     <div className="chat-app">
       <div className="header">
@@ -107,8 +112,8 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
         <button type="submit" className="send-button">
           Send
         </button>
-        <button className="sign-out" onClick={() => <App />}>
-          Sign out
+        <button className="sign-out" onClick={handleSingOut}>
+          Back
         </button>
       </form>
     </div>
