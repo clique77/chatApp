@@ -11,7 +11,10 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db, auth } from "../firebase-config";
+import { signOut } from "firebase/auth";
 import "../sass/chat.scss";
+import Cookies from "universal-cookie";
+const cookies = new Cookies();
 
 interface ChatProps {
   room: string;
@@ -71,6 +74,11 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
     setNewMessage("");
   };
 
+  const signUserOut = async () => {
+    await signOut(auth);
+    cookies.remove("authToken");
+  };
+
   return (
     <div className="chat-app">
       <div className="header">
@@ -100,6 +108,9 @@ export const Chat: React.FC<ChatProps> = ({ room }) => {
         />
         <button type="submit" className="send-button">
           Send
+        </button>
+        <button className="sign-out" onClick={signUserOut}>
+          Sign Out
         </button>
       </form>
     </div>
